@@ -326,6 +326,7 @@ export class CoreBrowserTerminal extends CoreTerminal implements ITerminal {
     // Text can safely be removed on blur. Doing it earlier could interfere with
     // screen readers reading it out.
     this.textarea!.value = '';
+    this._keyboardService.resetAltKey();
     this.refresh(this.buffer.y, this.buffer.y);
     if (this.coreService.decPrivateModes.sendFocus) {
       this.coreService.triggerDataEvent(C0.ESC + '[O');
@@ -845,6 +846,7 @@ export class CoreBrowserTerminal extends CoreTerminal implements ITerminal {
    */
   protected _keyDown(event: KeyboardEvent): boolean | undefined {
     this._keyDownHandled = false;
+    this._keyboardService.trackAltKey(event);
     // A modifier-only keydown never produces text, so it must neither arm nor disarm the
     // _keyDownSeen gate of _inputEvent. On macOS (WebKit/WKWebView as well as Safari), an IME's
     // direct-commit of a shifted character (e.g. full-width `？` from Shift+/ with Chinese Pinyin)
@@ -862,7 +864,7 @@ export class CoreBrowserTerminal extends CoreTerminal implements ITerminal {
     }
 
     // Ignore composing with Alt key on Mac when macOptionIsMeta is enabled
-    const shouldIgnoreComposition = this.browser.isMac && this.options.macOptionIsMeta && event.altKey;
+    const shouldIgnoreComposition = this.browser.isMac && this._keyboardService.macOptionIsMeta && event.altKey;
 
     if (!shouldIgnoreComposition && !this._compositionHelper!.keydown(event)) {
       if (this.options.scrollOnUserInput && this.buffer.ybase !== this.buffer.ydisp) {
@@ -946,7 +948,7 @@ export class CoreBrowserTerminal extends CoreTerminal implements ITerminal {
 
   private _isThirdLevelShift(browser: IBrowser, ev: KeyboardEvent): boolean {
     const thirdLevelKey =
-      (browser.isMac && !this.options.macOptionIsMeta && ev.altKey && !ev.ctrlKey && !ev.metaKey) ||
+      (browser.isMac && !this._keyboardService.macOptionIsMeta && ev.altKey && !ev.ctrlKey && !ev.metaKey) ||
       (browser.isWindows && ev.altKey && ev.ctrlKey && !ev.metaKey) ||
       (browser.isWindows && ev.getModifierState('AltGraph'));
 
@@ -960,6 +962,7 @@ export class CoreBrowserTerminal extends CoreTerminal implements ITerminal {
 
   protected _keyUp(ev: KeyboardEvent): void {
     this._keyDownSeen = false;
+    this._keyboardService.trackAltKey(ev);
 
     if (this._customKeyEventHandler && this._customKeyEventHandler(ev) === false) {
       return;

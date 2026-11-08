@@ -116,6 +116,14 @@ declare module '@xterm/headless' {
     macOptionIsMeta?: boolean;
 
     /**
+     * Which Option key acts as the meta key when {@link macOptionIsMeta} is
+     * enabled. Using `'left'` or `'right'` leaves the other Option key
+     * available for typing special characters (like iTerm2's per-side
+     * "Esc+" setting). Defaults to `'both'`.
+     */
+    macOptionMetaSide?: 'both' | 'left' | 'right';
+
+    /**
      * Whether holding a modifier key will force normal selection behavior,
      * regardless of whether the terminal is in mouse events mode. This will
      * also prevent mouse events from being emitted by the terminal. For

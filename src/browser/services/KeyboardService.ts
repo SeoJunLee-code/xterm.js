@@ -16,6 +16,7 @@ export class KeyboardService implements IKeyboardService {
 
   private _win32InputMode: Win32InputMode | undefined;
   private _kittyKeyboard: KittyKeyboard | undefined;
+  private _heldAltLocation: number = 0;
 
   constructor(
     @ICoreService private readonly _coreService: ICoreService,
@@ -40,8 +41,8 @@ export class KeyboardService implements IKeyboardService {
     }
     const kittyFlags = this._coreService.kittyKeyboard.flags;
     return this.useKitty
-      ? this._getKittyKeyboard().evaluate(event, kittyFlags, event.repeat ? KittyKeyboardEventType.REPEAT : KittyKeyboardEventType.PRESS, isMac && this._optionsService.rawOptions.macOptionIsMeta)
-      : evaluateKeyboardEvent(event, this._coreService.decPrivateModes.applicationCursorKeys, isMac, this._optionsService.rawOptions.macOptionIsMeta);
+      ? this._getKittyKeyboard().evaluate(event, kittyFlags, event.repeat ? KittyKeyboardEventType.REPEAT : KittyKeyboardEventType.PRESS, isMac && this.macOptionIsMeta)
+      : evaluateKeyboardEvent(event, this._coreService.decPrivateModes.applicationCursorKeys, isMac, this.macOptionIsMeta);
   }
 
   public evaluateKeyUp(event: KeyboardEvent): IKeyboardResult | undefined {
@@ -51,9 +52,31 @@ export class KeyboardService implements IKeyboardService {
     }
     const kittyFlags = this._coreService.kittyKeyboard.flags;
     if (this.useKitty && (kittyFlags & KittyKeyboardFlags.REPORT_EVENT_TYPES)) {
-      return this._getKittyKeyboard().evaluate(event, kittyFlags, KittyKeyboardEventType.RELEASE, isMac && this._optionsService.rawOptions.macOptionIsMeta);
+      return this._getKittyKeyboard().evaluate(event, kittyFlags, KittyKeyboardEventType.RELEASE, isMac && this.macOptionIsMeta);
     }
     return undefined;
+  }
+
+  public trackAltKey(event: KeyboardEvent): void {
+    if (event.key === 'Alt') {
+      this._heldAltLocation = event.type === 'keyup' ? 0 : event.location;
+    }
+  }
+
+  public resetAltKey(): void {
+    this._heldAltLocation = 0;
+  }
+
+  public get macOptionIsMeta(): boolean {
+    const options = this._optionsService.rawOptions;
+    if (!options.macOptionIsMeta) {
+      return false;
+    }
+    switch (options.macOptionMetaSide) {
+      case 'left': return this._heldAltLocation === 1 /* DOM_KEY_LOCATION_LEFT */;
+      case 'right': return this._heldAltLocation === 2 /* DOM_KEY_LOCATION_RIGHT */;
+      default: return true;
+    }
   }
 
   public get useKitty(): boolean {

@@ -26,6 +26,15 @@ describe('OptionsService', () => {
       assert.equal(optionsService.options.rows, 25);
       assert.equal(optionsService.options.cols, 80);
     });
+    it('defaults macOptionMetaSide to both and accepts left/right', () => {
+      assert.equal(new OptionsService({}).options.macOptionMetaSide, 'both');
+      assert.equal(new OptionsService({ macOptionMetaSide: 'left' }).options.macOptionMetaSide, 'left');
+      assert.equal(new OptionsService({ macOptionMetaSide: 'right' }).options.macOptionMetaSide, 'right');
+    });
+    it('throws when macOptionMetaSide is set to an invalid value', () => {
+      const optionsService = new OptionsService({});
+      assert.throws(() => optionsService.options.macOptionMetaSide = 'middle' as any, /not a valid value/);
+    });
     it('uses default value if invalid constructor option value passed', () => {
       assert.equal(new OptionsService({ tabStopWidth: 0 }).options.tabStopWidth, DEFAULT_OPTIONS.tabStopWidth);
     });

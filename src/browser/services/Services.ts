@@ -176,6 +176,12 @@ export interface IKeyboardService {
   serviceBrand: undefined;
   evaluateKeyDown(event: KeyboardEvent): IKeyboardResult;
   evaluateKeyUp(event: KeyboardEvent): IKeyboardResult | undefined;
+  /** Tracks which Option/Alt key (if any) is held. Must be called for every keydown and keyup. */
+  trackAltKey(event: KeyboardEvent): void;
+  /** Forget the held Option/Alt key, for example when the terminal loses focus. */
+  resetAltKey(): void;
+  /** Whether the held Option key acts as meta (see macOptionIsMeta, macOptionMetaSide). */
+  readonly macOptionIsMeta: boolean;
   readonly useKitty: boolean;
   readonly useWin32InputMode: boolean;
 }

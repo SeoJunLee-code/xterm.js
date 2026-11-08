@@ -226,6 +226,7 @@ export interface ITerminalOptions {
   logLevel?: LogLevel;
   logger?: ILogger | null;
   macOptionIsMeta?: boolean;
+  macOptionMetaSide?: 'both' | 'left' | 'right';
   macOptionClickForcesSelection?: boolean;
   minimumContrastRatio?: number;
   mouseEventsRequireAlt?: boolean;

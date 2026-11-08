@@ -39,6 +39,7 @@ export const DEFAULT_OPTIONS: Readonly<Required<ITerminalOptions>> = {
   screenReaderMode: false,
   smoothScrollDuration: 0,
   macOptionIsMeta: false,
+  macOptionMetaSide: 'both',
   macOptionClickForcesSelection: false,
   minimumContrastRatio: 1,
   mouseEventsRequireAlt: false,
@@ -154,6 +155,11 @@ export class OptionsService extends Disposable implements IOptionsService {
           value = DEFAULT_OPTIONS[key];
         }
         if (!isCursorStyle(value)) {
+          throw new Error(`"${value}" is not a valid value for ${key}`);
+        }
+        break;
+      case 'macOptionMetaSide':
+        if (value !== 'both' && value !== 'left' && value !== 'right') {
           throw new Error(`"${value}" is not a valid value for ${key}`);
         }
         break;
